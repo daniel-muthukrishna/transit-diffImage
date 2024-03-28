@@ -487,8 +487,10 @@ class tessDiffImage:
         ticCatalog = get_tic(self.ticData["raDegrees"], self.ticData["decDegrees"], searchRadius)
 #        print(list(ticCatalog))
 #        print(len(ticCatalog))
-        dRa = mas2deg*dt*ticCatalog["pmRA"]/np.cos(ticCatalog["Dec_orig"]*np.pi/180)
+        dRa = np.divide(mas2deg*dt*ticCatalog["pmRA"], np.cos(ticCatalog["Dec_orig"]*np.pi/180))
         dRa[np.isnan(dRa)] = 0
+        dRa.fill_value = 0
+        dRa.filled()
         dDec = mas2deg*dt*ticCatalog["pmDEC"]
         dDec[np.isnan(dDec)] = 0
 #        print("mean dRa in arcsec = " + str(3600*np.mean(dRa)))
