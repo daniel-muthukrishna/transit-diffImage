@@ -146,7 +146,7 @@ def process_astro_id(astro_id):
 
                 # Save centroid distance to file
                 with open(f'{dirname}/centroid_distance_astroid{astro_id}.txt', 'a') as f_centroids:
-                    f_centroids.write(f"{astro_id},{star['id']},{star['sector']},{centroid_distance}")
+                    f_centroids.write(f"{astro_id},{star['id']},{star['sector']},{centroid_distance}\n")
 
             except Exception as e:
                 print("###########\n Error:", e, "\n############")
@@ -161,8 +161,8 @@ def create_centroid_distance_csv(astro_ids):
             filename = f'{dirname}/centroid_distance_astroid{astro_id}.txt'
             if os.path.exists(filename):
                 with open(filename, 'r') as f:
-                    data = f.readline().strip().split(',')
-                    f_combined.write(f"{data[0]},{data[1]},{data[2]}\n")
+                    data = f.readlines()#.strip().split(',')
+                    f_combined.writelines(data)
 
 
 
@@ -191,14 +191,14 @@ def quick_flux_centroid(arr, extent, constrain=True):
 
 def main():
     # Get list of Astro IDs
-    astro_ids = vet_table.index.values  # np.arange(1, 4) #
+    astro_ids =  vet_table.index.values  #
 
     # Process Astro IDs in parallel
     num_processes = multiprocessing.cpu_count() - 8
     with Pool(processes=num_processes) as pool:
         pool.map(process_astro_id, astro_ids)
 
-    # Serial processing
+    # # Serial processing
     # for astro_id in astro_ids:
     #     process_astro_id(astro_id)
 
