@@ -47,11 +47,32 @@ def tess_PRF_centroid(prf, prfExtent, diffImage, catalogData):
 
     seed = np.array([qfc[0], qfc[1], 1, 0])
     data = diffImage.copy()
+
+    print ("Trying L-BFGS-B optimization method for PRF fitting")
     r = minimize(sim_image_data_diff, seed, method="L-BFGS-B",
                  args = (prf, catalogData, data))
-                 
+    print("LBFGS result", r)              
     simData = render_prf(prf, r.x, catalogData)
-
     prfFitQuality = np.corrcoef(simData.ravel(), data.ravel())[0,1]
-    
-    return r.x, prfFitQuality, qfc, closeData, closeExtent
+    print("LBFGS prfFitQuality", prfFitQuality)
+    method = "L-BFGS-B"
+
+    # Try different optimization method if the fit is not good
+    if prfFitQuality < 0.8:
+        print ("**Trying Nelder-Mead optimization method for PRF fitting")
+        r_2 = minimize(sim_image_data_diff, seed, method="Nelder-Mead",
+                     args = (prf, catalogData, data))
+        print("Nelder-Mead result", r_2)
+        simData_2 = render_prf(prf, r_2.x, catalogData)
+        prfFitQuality_2 = np.corrcoef(simData_2.ravel(), data.ravel())[0,1]
+        print("Nelder-Mead prfFitQuality", prfFitQuality_2)
+
+        if prfFitQuality_2 > prfFitQuality:
+            r = r_2
+            prfFitQuality = prfFitQuality_2
+            print("**Using Nelder-Mead result")
+            method = "Nelder-Mead"
+        else:
+            print("**Using LBFGS result")
+
+    return r.x, prfFitQuality, qfc, closeData, closeExtent, method

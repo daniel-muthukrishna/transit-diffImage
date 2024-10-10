@@ -172,7 +172,7 @@ class tessDiffImage:
             self.sectorList.append(pixelData["sector"])
 
         #       print('rm ' + self.ticName + '/*.fits')
-        if self.cleanFiles:
+        if self.cleanFiles and not fitsList:
             os.system('rm ' + os.path.join(self.outputDir, self.ticName, '*.fits'))
 
     def make_planet_difference_image(self, planetData, pixelData, catalogData, allowedBadCadences = None, drawImages = False):
@@ -239,9 +239,17 @@ class tessDiffImage:
                             + '" --output ' + zipStr
             print(curlStr)
             os.system(curlStr)
-            os.system('unzip ' + zipStr + ' -d ' + dirStr)
+            print(zipStr)
+            if os.path.exists(zipStr):
+                os.system('unzip ' + zipStr + ' -d ' + dirStr)
+            else:
+                print("no zip file found")
         elif not os.path.exists(dirStr): # check for unexpanded zip file without a directory
-            os.system('unzip ' + zipStr + ' -d ' + dirStr)
+            print(zipStr)
+            if os.path.exists(zipStr):
+                os.system('unzip ' + zipStr + ' -d ' + dirStr)
+            else:
+                print("no zip file found")
 
         if self.cleanFiles:
             os.system('rm ' + zipStr)
